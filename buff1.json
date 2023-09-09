@@ -1,0 +1,26 @@
+{
+    "scraper1": [
+        {"link": "https://buff.163.com/goods/781577", "float": 0.24, "price": 3.00},
+        {"link": "https://buff.163.com/goods/781592", "float": 0.24, "price": 3.00}
+    ],
+    "scraper2": [
+        {"link": "https://buff.163.com/goods/781568", "float": 0.24, "price": 3.00},
+        {"link": "https://buff.163.com/goods/781567", "float": 0.24, "price": 3.00}
+    ],
+    "scraper3": [
+        {"link": "https://buff.163.com/goods/781614", "float": 0.24, "price": 3.00},
+        {"link": "https://buff.163.com/goods/36338", "float": 0.11, "price": 1.95}
+    ],
+    "scraper4": [
+        {"link": "https://buff.163.com/goods/34912", "float": 0.10, "price": 10.50},
+        {"link": "https://buff.163.com/goods/35407", "float": 0.10, "price": 10.50}
+    ],
+    "scraper5": [
+        {"link": "https://buff.163.com/goods/42313", "float": 0.10, "price": 10.50},
+        {"link": "https://buff.163.com/goods/35118", "float": 0.10, "price": 10.50}
+    ],
+    "scraper6": [
+        {"link": "https://buff.163.com/goods/42137", "float": 0.10, "price": 10.50},
+        {"link": "https://buff.163.com/goods/39427", "float": 0.10, "price": 7.50}
+    ]
+}
