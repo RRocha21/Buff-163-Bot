@@ -17,6 +17,8 @@ from win11toast import toast
 from selenium.common.exceptions import TimeoutException
 import random
 import uuid
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
 
 iconTrue = {
@@ -36,9 +38,27 @@ def notify(title, text, result):
     else:
         toast(title, text, icon=iconFalse, app_id='Microsoft.WindowsTerminal_8wekyb3d8bbwe!App')
         
+def update_bought_item_gsheet(url):
+    # Define the scope and credentials to access your Google Sheet
+    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+    credentials = ServiceAccountCredentials.from_json_keyfile_name('buff-bot-e6cdb8b80af6.json', scope)
+    client = gspread.authorize(credentials)
+
+    # Open the Google Sheet by its title
+    sheet = client.open('Buff163-Skins').sheet1
+    # Find the row index where the link is located
+    cell = sheet.find(url)
+    row_index = cell.row
+
+    # Get the current value in the "Item Found" column
+    current_value = int(sheet.cell(row_index, 10).value)  # Assuming "Item Found" column is in column 8
+
+    # Increment the value by 1 and update the cell
+    new_value = current_value + 1
+    sheet.update_cell(row_index, 10, new_value)  # Assuming "Item Found" column is in column 8
+        
 def initPurchase(driver, request):
     driver.delete_all_cookies()
-    driver.get(request) # driver configs
     driver.execute_script('window.localStorage.clear();')
     
     cookies = pickle.load(open("cookies.pkl", "rb")) # enable cookies
@@ -48,24 +68,35 @@ def initPurchase(driver, request):
     driver.refresh()
     time.sleep(1)
     
+    
 def checkListing(driver, listing, maximumFloat, maximumPrice, divLocated):
     listingStatus = False
     isNamed = True
     try:
-        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated))))
+        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated))))
         title = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated))
-        notify("COMPLETED: BUFF 163 BOT", title.text, True)
     except NoSuchElementException:
         notify("FAILED: BUFF 163 BOT", "Page Not Loaded", False)
         isNamed = False
     except TimeoutException:
-        notify("FAILED: BUFF 163 BOT", "Page Not Loaded", False)
         isNamed = False
         
+    if isNamed == False:
+        try: 
+            driver.refresh()
+            WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated))))
+            title = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated))
+        except NoSuchElementException:
+            notify("FAILED: BUFF 163 BOT", "Page Not Loaded", False)
+            isNamed = False
+        except TimeoutException:
+            notify("FAILED: BUFF 163 BOT", "Page Not Loaded", False)
+            isNamed = False
+            
     if isNamed == True:
         try:
-            WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[5]/td[3]/div/div[1]/div[1]'.format(divLocated))))
-            WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[5]/td[5]/div[1]/strong'.format(divLocated))))
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[5]/td[3]/div/div[1]/div[1]'.format(divLocated))))
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[5]/td[5]/div[1]/strong'.format(divLocated))))
             wear = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[3]/div/div[1]/div[1]'.format(divLocated, listing+2))
             price = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[5]/div[1]/strong'.format(divLocated, listing+2)) #consistent html behavior across different item links for CS:GO
         except NoSuchElementException:
@@ -164,12 +195,12 @@ def checkProposalSent(driver):
         if class_attribute == "w-Toast_success":
             notify("COMPLETED: BUFF 163 BOT", "Proposal sent to the seller", True)
         else:
-            notify("FAILED: BUFF 163 BOT", "Proposal not sent to the seller", False)
+            notify("FAILED: BUFF 163 BOT", "Proposal not sent to the seller", True)
+        update_bought_item_gsheet(driver.current_url)
     except TimeoutException:
         notify("FAILED: BUFF 163 BOT", "Proposal Status Not Found", False)
 
 def purchase(driver, request, listing, maximumFloat, maximumPrice, divTitle):
-    
     initPurchase(driver, request)
     
     listingStatus = checkListing(driver, listing, maximumFloat, maximumPrice, divTitle)
@@ -179,10 +210,9 @@ def purchase(driver, request, listing, maximumFloat, maximumPrice, divTitle):
         beginPurchaseClicked = clickToBeginPurchase(driver, listing, divTitle)
         
         if beginPurchaseClicked == True:
-            notify("COMPLETED: BUFF 163 BOT", "Purchase Initiated", True)
-            # PurchaseClicked = clickToPurchase(driver)
-            # if PurchaseClicked == True:
-            #     ProposalClicked = clickToSendProposal(driver)
-            #     if ProposalClicked == True:
-            #         checkProposalSent(driver)
+            PurchaseClicked = clickToPurchase(driver)
+            if PurchaseClicked == True:
+                ProposalClicked = clickToSendProposal(driver)
+                if ProposalClicked == True:
+                    checkProposalSent(driver)
     driver.quit()

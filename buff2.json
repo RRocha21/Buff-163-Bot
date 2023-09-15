@@ -34,9 +34,7 @@
             "link": "https://buff.163.com/goods/781632",
             "float": 0.24,
             "price": 4.7
-        }
-    ],
-    "scraper2": [
+        },
         {
             "link": "https://buff.163.com/goods/781571",
             "float": 0.24,
@@ -71,9 +69,7 @@
             "link": "https://buff.163.com/goods/781689",
             "float": 0.18,
             "price": 40.0
-        }
-    ],
-    "scraper3": [
+        },
         {
             "link": "https://buff.163.com/goods/781639",
             "float": 0.18,
@@ -93,7 +89,9 @@
             "link": "https://buff.163.com/goods/781643",
             "float": 0.095,
             "price": 38.2
-        },
+        }
+    ],
+    "scraper2": [
         {
             "link": "https://buff.163.com/goods/781559",
             "float": 0.095,
@@ -108,9 +106,7 @@
             "link": "https://buff.163.com/goods/781673",
             "float": 0.1,
             "price": 72.0
-        }
-    ],
-    "scraper4": [
+        },
         {
             "link": "https://buff.163.com/goods/781672",
             "float": 0.1,
@@ -145,9 +141,7 @@
             "link": "https://buff.163.com/goods/42137",
             "float": 0.11,
             "price": 10.0
-        }
-    ],
-    "scraper5": [
+        },
         {
             "link": "https://buff.163.com/goods/34912",
             "float": 0.11,
@@ -182,14 +176,14 @@
             "link": "https://buff.163.com/goods/38940",
             "float": 0.11,
             "price": 21.0
-        }
-    ],
-    "scraper6": [
+        },
         {
             "link": "https://buff.163.com/goods/773669",
             "float": 0.1,
             "price": 8.9
-        },
+        }
+    ],
+    "scraper3": [
         {
             "link": "https://buff.163.com/goods/773636",
             "float": 0.1,
@@ -219,9 +213,7 @@
             "link": "https://buff.163.com/goods/773651",
             "float": 0.09,
             "price": 16.2
-        }
-    ],
-    "scraper7": [
+        },
         {
             "link": "https://buff.163.com/goods/773744",
             "float": 0.09,
@@ -256,9 +248,7 @@
             "link": "https://buff.163.com/goods/773638",
             "float": 0.21,
             "price": 4.65
-        }
-    ],
-    "scraper8": [
+        },
         {
             "link": "https://buff.163.com/goods/773663",
             "float": 0.21,
