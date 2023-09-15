@@ -192,10 +192,9 @@ class PurchaseThread(threading.Thread):
         driver.close()
         # Switch back to the remaining tab(s)
         driver.switch_to.window(driver.window_handles[0])
-        
+        item_found_event.clear()
         purchase(driver, self.request, self.listing, self.maximumFloat, self.maximumPrice, self.divTitle)
         print("Finished Purchase {}".format(self.listing))
-        item_found_event.clear()
 
 class ScrapeThread(threading.Thread):
     def __init__(self, scrapernumber):
@@ -267,8 +266,8 @@ class ScrapeThread(threading.Thread):
                 driver.switch_to.window(handle)
 
                 if item_found_event.is_set():
-                    time.sleep(3)
-                    print('Waited for 3 seconds')
+                    time.sleep(5)
+                    print('Waited for 5 seconds')
                 driver.refresh()
                 randomNumber2 = random.uniform(1.5, 2.7)
                 time.sleep(randomNumber2)
