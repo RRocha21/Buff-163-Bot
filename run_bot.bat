@@ -1,1 +1,1 @@
-python scrapeBuff.py 1 24
+python scrapeBuff.py 1 3
