@@ -74,7 +74,6 @@ def checkListing(driver, listing, maximumFloat, maximumPrice, divLocated):
     isNamed = True
     try:
         WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated))))
-        title = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated))
     except NoSuchElementException:
         notify("FAILED: BUFF 163 BOT", "Page Not Loaded", False)
         isNamed = False

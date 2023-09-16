@@ -99,12 +99,16 @@ def getSkinTitle(driver):
     total_page_counter += 1
     try:
         WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated))))
+        title = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated)).text
+        print(title)
     except TimeoutException:
         divLocated += 1
         
     if divLocated == 7:
         try: 
             WebDriverWait(driver, 1).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated))))
+            title = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated)).text
+            print(title)
         except TimeoutException:
             divLocated = 0
     if divLocated == 0:
@@ -128,9 +132,9 @@ def getSkinTags(driver, divLocated, i):
     price_text = price_text.replace('¥', '').strip()
     # Convert the string to a float
     price_float = float(price_text)
-    # print("Listing: {}".format(i))
-    # print("Wear: {}".format(weartext))
-    # print("Price: {}".format(price_float))
+    print("Listing: {}".format(i))
+    print("Wear: {}".format(weartext))
+    print("Price: {}".format(price_float))
     
     return weartext, price_float
 
@@ -157,7 +161,7 @@ def obtainItems(request, driver, maximumFloat, maximumPrice): # obtain list of 1
                         if price_float < maximumPrice:
                             PurchaseThread(request, i, maximumFloat, maximumPrice, divTitle).start()
                             found_page_counter += 1
-                            update_found_item_gsheet(driver.current_url)
+                            # update_found_item_gsheet(driver.current_url)
 
 class PurchaseThread(threading.Thread):
     def __init__(self, request, listing, maximumFloat, maximumPrice, divTitle):
@@ -208,7 +212,7 @@ class ScrapeThread(threading.Thread):
         maximumFloats = [product_info['float'] for product_info in data[scrapeCount]]
 
         options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
+        # options.add_argument('--headless')
         options.add_argument("--enable-javascript")
         options.add_argument("--allow-running-insecure-content")
         options.add_argument("--disable-web-security")
@@ -233,8 +237,8 @@ class ScrapeThread(threading.Thread):
             options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/93.0.961.44 Safari/537.36 ")
 
         driver = webdriver.Chrome(options=options)
-        
         driver.delete_all_cookies()
+        
         
         for url in links:
             randomNumber = random.uniform(1, 5)
@@ -246,13 +250,13 @@ class ScrapeThread(threading.Thread):
         # Switch back to the remaining tab(s)
         driver.switch_to.window(driver.window_handles[0])
         
-        driver.delete_all_cookies()
-        driver.execute_script('window.localStorage.clear();')
+        # driver.delete_all_cookies()
+        # driver.execute_script('window.localStorage.clear();')
 
-        device_id = str(uuid.uuid4())
-        client_id = str(uuid.uuid4())
-        driver.add_cookie({'name': 'deviceId', 'value': device_id})
-        driver.add_cookie({'name': 'client_id', 'value': client_id})
+        # device_id = str(uuid.uuid4())
+        # client_id = str(uuid.uuid4())
+        # driver.add_cookie({'name': 'deviceId', 'value': device_id})
+        # driver.add_cookie({'name': 'client_id', 'value': client_id})
         
         
         tab_order = list(driver.window_handles)  # Save the initial order
@@ -264,17 +268,22 @@ class ScrapeThread(threading.Thread):
             for i, handle in enumerate(tab_order):
                 # print("Scrape {} Refreshing".format(i))
                 driver.switch_to.window(handle)
-                driver.delete_all_cookies()
+                # driver.delete_all_cookies()
 
-                device_id = str(uuid.uuid4())
-                client_id = str(uuid.uuid4())
-                time.sleep(0.2)
+                # time.sleep(0.2)
                 try: 
                     driver.execute_script('window.localStorage.clear();')
+                    randomCookie = random.randint(1, 22)
+                    cookie_file_path = "./fake_Cookies/{}.pkl".format(randomCookie)
+                    cookies = pickle.load(open(cookie_file_path, "rb")) # enable cookies
+                    for cookie in cookies:
+                        driver.add_cookie(cookie)
+                    device_id = str(uuid.uuid4())
+                    client_id = str(uuid.uuid4())
+                    driver.add_cookie({'name': 'deviceId', 'value': device_id})
+                    driver.add_cookie({'name': 'client_id', 'value': client_id})
                 except Exception as e:
                     print('Could not clear local storage')
-                driver.add_cookie({'name': 'deviceId', 'value': device_id})
-                driver.add_cookie({'name': 'client_id', 'value': client_id})
 
                 if item_found_event.is_set():
                     time.sleep(5)
