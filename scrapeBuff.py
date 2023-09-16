@@ -268,15 +268,23 @@ class ScrapeThread(threading.Thread):
 
                 device_id = str(uuid.uuid4())
                 client_id = str(uuid.uuid4())
-                driver.execute_script('window.localStorage.clear();')
+                time.sleep(0.2)
+                try: 
+                    driver.execute_script('window.localStorage.clear();')
+                except Exception as e:
+                    print('Could not clear local storage')
                 driver.add_cookie({'name': 'deviceId', 'value': device_id})
                 driver.add_cookie({'name': 'client_id', 'value': client_id})
 
                 if item_found_event.is_set():
                     time.sleep(5)
                     print('Waited for 5 seconds')
+                try:
+                    driver.refresh()
+                except Exception as e:
+                    print('Could not refresh')
                 driver.refresh()
-                randomNumber2 = random.uniform(2, 3)
+                randomNumber2 = random.uniform(1.9, 2.9)
                 time.sleep(randomNumber2)
                 current_url = driver.current_url
                 position = None

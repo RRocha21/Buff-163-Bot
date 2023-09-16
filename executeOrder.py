@@ -101,8 +101,10 @@ def checkListing(driver, listing, maximumFloat, maximumPrice, divLocated):
             price = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[5]/div[1]/strong'.format(divLocated, listing+2)) #consistent html behavior across different item links for CS:GO
         except NoSuchElementException:
             notify("FAILED: BUFF 163 BOT", "Items Not Loaded", False)
+            return False
         except TimeoutException:
             notify("FAILED: BUFF 163 BOT", "Items Not Loaded", False)
+            return False
     
         weartext = float(''.join(c for c in wear.text if c.isdigit() or c=='.'))
         
