@@ -264,12 +264,11 @@ class ScrapeThread(threading.Thread):
             for i, handle in enumerate(tab_order):
                 # print("Scrape {} Refreshing".format(i))
                 driver.switch_to.window(handle)
-                
                 driver.delete_all_cookies()
-                driver.execute_script('window.localStorage.clear();')
 
                 device_id = str(uuid.uuid4())
                 client_id = str(uuid.uuid4())
+                driver.execute_script('window.localStorage.clear();')
                 driver.add_cookie({'name': 'deviceId', 'value': device_id})
                 driver.add_cookie({'name': 'client_id', 'value': client_id})
 
