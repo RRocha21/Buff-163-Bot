@@ -29,7 +29,9 @@
             "link": "https://buff.163.com/goods/781582",
             "float": 0.24,
             "price": 4.7
-        },
+        }
+    ],
+    "scraper2": [
         {
             "link": "https://buff.163.com/goods/781632",
             "float": 0.24,
@@ -59,7 +61,9 @@
             "link": "https://buff.163.com/goods/781604",
             "float": 0.18,
             "price": 25.0
-        },
+        }
+    ],
+    "scraper3": [
         {
             "link": "https://buff.163.com/goods/781564",
             "float": 0.18,
@@ -91,7 +95,7 @@
             "price": 38.2
         }
     ],
-    "scraper2": [
+    "scraper4": [
         {
             "link": "https://buff.163.com/goods/781559",
             "float": 0.095,
@@ -119,9 +123,11 @@
         },
         {
             "link": "https://buff.163.com/goods/36338",
-            "float": 0.11,
+            "float": 0.1,
             "price": 2.2
-        },
+        }
+    ],
+    "scraper5": [
         {
             "link": "https://buff.163.com/goods/39427",
             "float": 0.11,
@@ -151,7 +157,9 @@
             "link": "https://buff.163.com/goods/35118",
             "float": 0.11,
             "price": 10.0
-        },
+        }
+    ],
+    "scraper6": [
         {
             "link": "https://buff.163.com/goods/38758",
             "float": 0.11,
@@ -183,7 +191,7 @@
             "price": 8.9
         }
     ],
-    "scraper3": [
+    "scraper7": [
         {
             "link": "https://buff.163.com/goods/773636",
             "float": 0.1,
@@ -213,7 +221,9 @@
             "link": "https://buff.163.com/goods/773651",
             "float": 0.09,
             "price": 16.2
-        },
+        }
+    ],
+    "scraper8": [
         {
             "link": "https://buff.163.com/goods/773744",
             "float": 0.09,
@@ -243,7 +253,9 @@
             "link": "https://buff.163.com/goods/773625",
             "float": 0.21,
             "price": 4.65
-        },
+        }
+    ],
+    "scraper9": [
         {
             "link": "https://buff.163.com/goods/773638",
             "float": 0.21,

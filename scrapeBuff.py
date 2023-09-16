@@ -264,12 +264,20 @@ class ScrapeThread(threading.Thread):
             for i, handle in enumerate(tab_order):
                 # print("Scrape {} Refreshing".format(i))
                 driver.switch_to.window(handle)
+                
+                driver.delete_all_cookies()
+                driver.execute_script('window.localStorage.clear();')
+
+                device_id = str(uuid.uuid4())
+                client_id = str(uuid.uuid4())
+                driver.add_cookie({'name': 'deviceId', 'value': device_id})
+                driver.add_cookie({'name': 'client_id', 'value': client_id})
 
                 if item_found_event.is_set():
                     time.sleep(5)
                     print('Waited for 5 seconds')
                 driver.refresh()
-                randomNumber2 = random.uniform(1.5, 2.7)
+                randomNumber2 = random.uniform(2, 3)
                 time.sleep(randomNumber2)
                 current_url = driver.current_url
                 position = None
