@@ -212,7 +212,7 @@ class ScrapeThread(threading.Thread):
         maximumFloats = [product_info['float'] for product_info in data[scrapeCount]]
 
         options = webdriver.ChromeOptions()
-        # options.add_argument('--headless')
+        options.add_argument('--headless')
         options.add_argument("--enable-javascript")
         options.add_argument("--allow-running-insecure-content")
         options.add_argument("--disable-web-security")
