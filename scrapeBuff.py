@@ -99,16 +99,16 @@ def getSkinTitle(driver):
     total_page_counter += 1
     try:
         WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated))))
-        title = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated)).text
-        print(title)
+        # title = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated)).text
+        # print(title)
     except TimeoutException:
         divLocated += 1
         
     if divLocated == 7:
         try: 
             WebDriverWait(driver, 1).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated))))
-            title = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated)).text
-            print(title)
+            # title = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated)).text
+            # print(title)
         except TimeoutException:
             divLocated = 0
     if divLocated == 0:
@@ -132,9 +132,9 @@ def getSkinTags(driver, divLocated, i):
     price_text = price_text.replace('¥', '').strip()
     # Convert the string to a float
     price_float = float(price_text)
-    print("Listing: {}".format(i))
-    print("Wear: {}".format(weartext))
-    print("Price: {}".format(price_float))
+    # print("Listing: {}".format(i))
+    # print("Wear: {}".format(weartext))
+    # print("Price: {}".format(price_float))
     
     return weartext, price_float
 
@@ -270,7 +270,7 @@ class ScrapeThread(threading.Thread):
                 driver.switch_to.window(handle)
                 # driver.delete_all_cookies()
 
-                # time.sleep(0.2)
+                time.sleep(0.2)
                 try: 
                     driver.execute_script('window.localStorage.clear();')
                     randomCookie = random.randint(1, 22)
@@ -293,7 +293,7 @@ class ScrapeThread(threading.Thread):
                 except Exception as e:
                     print('Could not refresh')
                 driver.refresh()
-                randomNumber2 = random.uniform(1.9, 2.9)
+                randomNumber2 = random.uniform(1.5, 2.5)
                 time.sleep(randomNumber2)
                 current_url = driver.current_url
                 position = None
