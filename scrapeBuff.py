@@ -295,7 +295,7 @@ class ScrapeThread(threading.Thread):
                     print('Waited for 5 seconds')
 
                 driver.refresh()
-                randomNumber2 = random.uniform(3.5, 7.5)
+                randomNumber2 = random.uniform(4, 10)
                 time.sleep(randomNumber2)
                 current_url = driver.current_url
                 position = None
