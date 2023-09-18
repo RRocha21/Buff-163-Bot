@@ -16,6 +16,6 @@ driver.get("https://buff.163.com/goods/857578")
 # Here, you must login to steam from the automated browser. Wait for the browser to exit and the cookies will be saved in the specified location
 
 time.sleep(100) # wait for manual login which will save cookies
-pickle.dump(driver.get_cookies(), open("cookies.pkl", "wb")) #if want to write cookies
+pickle.dump(driver.get_cookies(), open("../cookies.pkl", "wb")) #if want to write cookies
 
 driver.quit()

@@ -1,4 +1,4 @@
 # ignore cookies
-# cookies.pkl
+cookies.pkl
 # ignore incomplete files
 gatherItems.py

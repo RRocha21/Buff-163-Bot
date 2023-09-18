@@ -1,7 +1,6 @@
 #Note: Buff163 does not release its statistics on rate limits, but upon testing, a total of 3 scrapers at a time works best
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -61,7 +60,7 @@ def check_stop_condition():
     # For example, you can check for a specific key press, or a signal from an external source
     # For now, let's assume you want to stop after a specific number of pages checked
     global total_page_counter, missed_page_counter, found_page_counter, start_time, end_time, missed_tag_counter
-    max_pages_to_check = 500  # Change this to your desired maximum
+    max_pages_to_check = 1000  # Change this to your desired maximum
     # print(f"Total Pages Checked: {total_page_counter}")
     if total_page_counter >= max_pages_to_check:
         print(f"Reached maximum pages to check ({max_pages_to_check}). Stopping...")
@@ -103,7 +102,7 @@ def getSkinTitle(driver):
     try:
         WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated))))
         # title = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated)).text
-        # print(title, 'divlocated 6')
+        # print(title)
     except TimeoutException:
         divLocated += 1
         
@@ -111,7 +110,7 @@ def getSkinTitle(driver):
         try: 
             WebDriverWait(driver, 1).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated))))
             # title = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[1]/div[2]/div[1]/h1'.format(divLocated)).text
-            # print(title, 'divlocated 7')
+            # print(title)
         except TimeoutException:
             divLocated = 0
     if divLocated == 0:
@@ -125,8 +124,8 @@ def getSkinTitle(driver):
 def getSkinTags(driver, divLocated, i):
     global missed_tag_counter
     try:
-        price = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[5]/div[1]/strong'.format(divLocated, i))
-        wear = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[3]/div/div[1]/div[1]'.format(divLocated, i))
+        price = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[5]/div[1]/strong'.format(divLocated, i+2))
+        wear = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[3]/div/div[1]/div[1]'.format(divLocated, i+2))
     except NoSuchElementException:
         missed_tag_counter += 1
         print("Tags Not Found for Listing {}".format(i))
@@ -145,20 +144,15 @@ def getSkinTags(driver, divLocated, i):
 
 def checkItems(driver, divLocated):
     global missed_tag_counter
-    array = []
-    for i in range(2, 21):
-        try:
-            if (i > 2):
-                WebDriverWait(driver, 1).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[3]/div/div[1]/div[1]'.format(divLocated, i))))
-                array.append(i)
-            else:
-                WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[3]/div/div[1]/div[1]'.format(divLocated, i))))
-                array.append(i)
-        except TimeoutException:
-            if len(array) >= 10:
-                break
-        
-    return array
+    try:
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[6]/td[3]/div/div[1]/div[1]'.format(divLocated))))
+        element = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[2]/td[3]/div/div[1]/div[1]'.format(divLocated))
+        driver.execute_script("arguments[0].scrollIntoView(true);", element)
+    except TimeoutException:
+        print("Items of Skin Not Found")
+        missed_tag_counter += 1
+        return False
+    return True
 
 def obtainItems(request, driver, maximumFloat, maximumPrice): # obtain list of 10 items wear values and prices for the links found in json file. Returns true if match is found
     global found_page_counter
@@ -166,8 +160,8 @@ def obtainItems(request, driver, maximumFloat, maximumPrice): # obtain list of 1
     
     if divTitle != 0:
         itemsChecked = checkItems(driver, divTitle)
-        if len(itemsChecked) > 0:
-            for i in itemsChecked:
+        if itemsChecked == True:
+            for i in range(10):
                 weartext, price_float = getSkinTags(driver, divTitle, i)
                 
                 if weartext != False:
@@ -175,7 +169,7 @@ def obtainItems(request, driver, maximumFloat, maximumPrice): # obtain list of 1
                         if price_float < maximumPrice:
                             PurchaseThread(request, i, maximumFloat, maximumPrice, divTitle).start()
                             found_page_counter += 1
-                            update_found_item_gsheet(driver.current_url)
+                            # update_found_item_gsheet(driver.current_url)
 
 class PurchaseThread(threading.Thread):
     def __init__(self, request, listing, maximumFloat, maximumPrice, divTitle):
@@ -188,24 +182,21 @@ class PurchaseThread(threading.Thread):
     def run(self):
         global item_found_event
         item_found_event.set()
-        options = Options()
-        options.add_argument("--headless")
-        options.set_preference("javascript.enabled", True)
-        options.set_preference("security.insecure_field_warning.contextual.enabled", False)
-        options.set_preference("security.insecure_password.ui.enabled", False)
-        # options.set_preference("browser.privatebrowsing.autostart", True)
-        options.set_preference("browser.cache.disk.enable", False)
-        options.set_preference("browser.cache.memory.enable", False)
-        options.set_preference("browser.cache.offline.enable", False)
-        options.set_preference("network.http.use-cache", False)
-        options.set_preference("permissions.default.image", 2)  # 2 for block, 1 for allow
-        options.set_preference("dom.webnotifications.enabled", False)
-        options.set_preference("permissions.default.stylesheet", 2)  # 2 for block, 1 for allow
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')
+        options.add_argument("--enable-javascript")
+        options.add_argument("--allow-running-insecure-content")
+        options.add_argument("--disable-web-security")
+        options.add_argument("--incognito")
+        options.add_argument("--disable-cache")
 
-        options.set_preference("general.useragent.override", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0")
+        # Disable images
+        prefs = {"profile.managed_default_content_settings.images": 2, "profile.default_content_setting_values.notifications": 2, "profile.managed_default_content_settings.stylesheets": 2}
+        options.add_experimental_option("prefs", prefs)
 
-        driver = webdriver.Firefox(options=options)
-        
+        options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)")
+
+        driver = webdriver.Chrome(options=options)
         driver.delete_all_cookies()
         driver.execute_script("window.open('{}', '_blank');".format(self.request))
         
@@ -228,58 +219,50 @@ class ScrapeThread(threading.Thread):
         maximumPrices = [product_info['price'] for product_info in data[scrapeCount]]
         maximumFloats = [product_info['float'] for product_info in data[scrapeCount]]
 
-        options = Options()
-        options.add_argument("--headless")
-        options.set_preference("javascript.enabled", True)
-        options.set_preference("security.insecure_field_warning.contextual.enabled", False)
-        options.set_preference("security.insecure_password.ui.enabled", False)
-        # options.set_preference("browser.privatebrowsing.autostart", True)
-        options.set_preference("browser.cache.disk.enable", False)
-        options.set_preference("browser.cache.memory.enable", False)
-        options.set_preference("browser.cache.offline.enable", False)
-        options.set_preference("network.http.use-cache", False)
-        options.set_preference("permissions.default.image", 2)  # 2 for block, 1 for allow
-        options.set_preference("dom.webnotifications.enabled", False)
-        options.set_preference("permissions.default.stylesheet", 2)  # 2 for block, 1 for allow
-        
-        if (self.scrapernumber == 1):
-            options.set_preference("general.useragent.override", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/88.0")
-        elif (self.scrapernumber == 2):
-            options.set_preference("general.useragent.override", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0")
-        elif (self.scrapernumber == 3):
-            options.set_preference("general.useragent.override", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0")
-        elif (self.scrapernumber == 4):
-            options.set_preference("general.useragent.override", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0")
-        elif (self.scrapernumber == 5):
-            options.set_preference("general.useragent.override", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0")
-        elif (self.scrapernumber == 6):
-            options.set_preference("general.useragent.override", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0")
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')
+        options.add_argument("--enable-javascript")
+        options.add_argument("--allow-running-insecure-content")
+        options.add_argument("--disable-web-security")
+        # options.add_argument("--incognito")
+        options.add_argument("--disable-cache")
 
-        driver = webdriver.Firefox(options=options)
+        # # Disable images
+        prefs = {"profile.managed_default_content_settings.images": 2, "profile.default_content_setting_values.notifications": 2, "profile.managed_default_content_settings.stylesheets": 2}
+        options.add_experimental_option("prefs", prefs)
+
+        if self.scrapernumber == 1:
+            options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/93.0.961.44 Safari/537.36")
+        elif self.scrapernumber == 2:
+            options.add_argument("user-agent=Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36")
+        elif self.scrapernumber == 3:
+            options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36")
+        elif self.scrapernumber == 4:
+            options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36 Edg/93.0.961.44")
+        elif self.scrapernumber == 5:
+            options.add_argument("user-agent=Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/93.0.961.44 Safari/537.36")
+        elif self.scrapernumber == 6:
+            options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/93.0.961.44 Safari/537.36 ")
+
+        driver = webdriver.Chrome(options=options)
         
         driver.get('https://buff.163.com/goods/857578')
         
         driver.delete_all_cookies()
-        driver.execute_script('localStorage.clear();')
-
-        # Load cookies
+        driver.execute_script('window.localStorage.clear();')
+        
         randomCookie = random.randint(1, 22)
-        print("Scraper {} Loading Cookie {}".format(self.scrapernumber, randomCookie))
-        cookie_file_path = "./fake_Cookies/2.pkl".format(randomCookie)
-        cookies = pickle.load(open(cookie_file_path, "rb"))
+        cookie_file_path = "./fake_Cookies/{}.pkl".format(randomCookie)
+        cookies = pickle.load(open(cookie_file_path, "rb")) 
+        
         for cookie in cookies:
             driver.add_cookie(cookie)
-
-        device_id = str(uuid.uuid4())
-        client_id = str(uuid.uuid4())
-        driver.add_cookie({'name': 'Device-Id', 'value': device_id})
-        driver.add_cookie({'name': 'client_id', 'value': client_id})
             
         driver.refresh()
-        # time.sleep(20)
+        time.sleep(1)
+        
         for url in links:
-            # time.sleep(3)
-            randomNumber = random.randint(1, 10)
+            randomNumber = random.uniform(1, 10)
             time.sleep(randomNumber)
             driver.execute_script("window.open('{}', '_blank');".format(url))
 
@@ -304,8 +287,7 @@ class ScrapeThread(threading.Thread):
                     print('Waited for 5 seconds')
 
                 driver.refresh()
-                randomNumber2 = random.randint(4, 9)
-                # print("Scraper {} Waiting for {} seconds".format(self.scrapernumber, randomNumber2))
+                randomNumber2 = random.uniform(4, 10)
                 time.sleep(randomNumber2)
                 current_url = driver.current_url
                 position = None
@@ -315,7 +297,6 @@ class ScrapeThread(threading.Thread):
                         break
 
                 obtainItems(current_url, driver, maximumFloats[position], maximumPrices[position])
-                # time.sleep(30)
 
 def scrape(firstScraper, lastScraper):
     threads = []

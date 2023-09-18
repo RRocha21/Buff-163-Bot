@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
-from executeOrder import purchase
+# from executeOrder import purchase
 from selenium.webdriver.common.keys import Keys
 import json
 import time
@@ -31,7 +31,7 @@ class ScrapeThread(threading.Thread):
         self.scrapernumber = scrapernumber
     def run(self):
         options = webdriver.ChromeOptions()
-        # options.add_argument('--headless')
+        options.add_argument('--headless')
         options.add_argument("--enable-javascript")
         options.add_argument("--allow-running-insecure-content")
         options.add_argument("--disable-web-security")
@@ -59,7 +59,7 @@ class ScrapeThread(threading.Thread):
         driver.delete_all_cookies()
         
         
-        for i in range(0, 22):
+        for i in range(0, 33):
             randomNumber = random.uniform(1, 2)
             time.sleep(randomNumber)
             driver.execute_script("window.open('{}', '_blank');".format('https://buff.163.com/goods/781592'))
@@ -69,14 +69,6 @@ class ScrapeThread(threading.Thread):
         # Switch back to the remaining tab(s)
         driver.switch_to.window(driver.window_handles[0])
         
-        # driver.delete_all_cookies()
-        # driver.execute_script('window.localStorage.clear();')
-
-        # device_id = str(uuid.uuid4())
-        # client_id = str(uuid.uuid4())
-        # driver.add_cookie({'name': 'deviceId', 'value': device_id})
-        # driver.add_cookie({'name': 'client_id', 'value': client_id})
-        
         
         tab_order = list(driver.window_handles)  # Save the initial order
         randomCookie = 0
@@ -84,15 +76,16 @@ class ScrapeThread(threading.Thread):
             # Loop through each tab and refresh
             currentDate = datetime.datetime.now().strftime("%H:%M:%S")
             print("Scraper {} Starting Over at {}".format(self.scrapernumber ,currentDate))
+            if randomCookie > 33:
+                break;
             for i, handle in enumerate(tab_order):
                 # print("Scrape {} Refreshing".format(i))
                 driver.switch_to.window(handle)
-                # driver.delete_all_cookies()
-
                 try: 
+                    driver.delete_all_cookies()
                     driver.execute_script('window.localStorage.clear();')
                     randomCookie = randomCookie + 1
-                    cookie_file_path = "./fake_Cookies/{}.pkl".format(randomCookie)
+                    cookie_file_path = "../fake_Cookies/{}.pkl".format(randomCookie)
                     cookies = pickle.load(open(cookie_file_path, "rb")) # enable cookies
                     for cookie in cookies:
                         driver.add_cookie(cookie)
@@ -109,16 +102,52 @@ class ScrapeThread(threading.Thread):
                 except Exception as e:
                     print('Could not refresh')
                 driver.refresh()
-                randomNumber2 = random.uniform(1.5, 2.7)
-                time.sleep(randomNumber2)
-                print('Random Cookie: {}'.format(randomCookie))
                 time.sleep(10)
-                # Now `position` will contain the position of the current URL in the links list
-                # print("Position:", position)
-                # print("Current URL:", current_url)
-                # print("Maximum Float:", maximumFloats[position])
-                # print("Maximum Price:", maximumPrices[position])
-                # obtainItems(current_url, driver, maximumFloats[position], maximumPrices[position])
+
+                try:
+                    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[6]/div/div[7]/table/tbody/tr[2]/td[3]/div/div[1]/div[1]')))
+                    try:
+                        WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/div[3]/ul/li[1]/a')))
+                        element = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[3]/ul/li[1]/a').text
+                        if element == '登录/注册':
+                            print("Cookie {} Expired".format(randomCookie))
+                            pass
+                        elif element == 'Login/Registrar':
+                            print("Cookie {} Expired".format(randomCookie))
+                            pass
+                        elif element == 'Login/Register':
+                            print("Cookie {} Expired".format(randomCookie))
+                            pass
+                        else:
+                            print("Cookie {} Valid".format(randomCookie))
+                            pass
+                    except TimeoutException:
+                        print("Cookie {} Did Not Found Login Status".format(randomCookie))
+                        pass
+                except TimeoutException:
+                    try: 
+                        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[6]/div/div[7]/table/tbody/tr[2]/td[3]/div/div[1]/div[1]')))
+                        try:
+                            WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/div[3]/ul/li[1]/a')))
+                            element = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[3]/ul/li[1]/a').text
+                            if element == '登录/注册':
+                                print("Cookie {} Expired".format(randomCookie))
+                                pass
+                            elif element == 'Login/Registrar':
+                                print("Cookie {} Expired".format(randomCookie))
+                                pass
+                            elif element == 'Login/Register':
+                                print("Cookie {} Expired".format(randomCookie))
+                                pass
+                            else:
+                                print("Cookie {} Valid".format(randomCookie))
+                                pass
+                        except TimeoutException:
+                            print("Cookie {} Did Not Found Login Status".format(randomCookie))
+                            pass
+                    except TimeoutException:
+                        print("Cookie {} Failed".format(randomCookie))
+                        pass
 
 def scrape(firstScraper, lastScraper):
     threads = []
@@ -134,7 +163,7 @@ def scrape(firstScraper, lastScraper):
 data = None
 
 try:
-    with open('buff2.json', 'r') as f:
+    with open('../buff.json', 'r') as f:
         data = json.load(f)
 except FileNotFoundError:
     print("File not found")

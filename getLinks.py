@@ -44,7 +44,7 @@ for row in data:
             output['scraper{}'.format(scraper_number)] = [{'link': link, 'float': float_value, 'price': price}]
 
 # Format the output as specified
-file_path = 'buff2.json'
+file_path = 'buff.json'
 
 with open(file_path, 'w') as f:
     json.dump(output, f, indent=4)

@@ -58,12 +58,11 @@ def update_bought_item_gsheet(url):
     sheet.update_cell(row_index, 10, new_value)  # Assuming "Item Found" column is in column 8
         
 def initPurchase(driver, request):
-    driver.delete_all_cookies()
-    driver.execute_script('window.localStorage.clear();')
+    # driver.delete_all_cookies()
     
-    cookies = pickle.load(open("cookies.pkl", "rb")) # enable cookies
-    for cookie in cookies:
-        driver.add_cookie(cookie)
+    # cookies = pickle.load(open("cookies.pkl", "rb")) # enable cookies
+    # for cookie in cookies:
+    #     driver.add_cookie(cookie)
 
     driver.refresh()
     time.sleep(1)
