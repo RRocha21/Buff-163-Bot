@@ -94,10 +94,10 @@ def checkListing(driver, listing, maximumFloat, maximumPrice, divLocated):
             
     if isNamed == True:
         try:
-            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[5]/td[3]/div/div[1]/div[1]'.format(divLocated))))
-            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[5]/td[5]/div[1]/strong'.format(divLocated))))
-            wear = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[3]/div/div[1]/div[1]'.format(divLocated, listing+2))
-            price = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[5]/div[1]/strong'.format(divLocated, listing+2)) #consistent html behavior across different item links for CS:GO
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[3]/div/div[1]/div[1]'.format(divLocated, listing))))
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[5]/div[1]/strong'.format(divLocated, listing))))
+            wear = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[3]/div/div[1]/div[1]'.format(divLocated, listing))
+            price = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[5]/div[1]/strong'.format(divLocated, listing)) #consistent html behavior across different item links for CS:GO
         except NoSuchElementException:
             notify("FAILED: BUFF 163 BOT", "Items Not Loaded", False)
             return False
@@ -121,7 +121,7 @@ def checkListing(driver, listing, maximumFloat, maximumPrice, divLocated):
 
 def clickToBeginPurchase(driver, listing, divLocated):
     try:
-        element = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[6]/a'.format(divLocated, listing+2))))
+        element = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[6]/a'.format(divLocated, listing))))
         driver.execute_script("arguments[0].scrollIntoView(true);", element)
         element.click()
         return True
@@ -216,4 +216,6 @@ def purchase(driver, request, listing, maximumFloat, maximumPrice, divTitle):
                 ProposalClicked = clickToSendProposal(driver)
                 if ProposalClicked == True:
                     checkProposalSent(driver)
+    else:
+        notify("FAILED: BUFF 163 BOT", "Listing Not Found", False)
     driver.quit()
