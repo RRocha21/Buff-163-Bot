@@ -166,7 +166,6 @@ def obtainItems(request, driver, maximumFloat, maximumPrice): # obtain list of 1
     
     if divTitle != 0:
         itemsChecked = checkItems(driver, divTitle)
-        print(itemsChecked)
         if len(itemsChecked) > 0:
             for i in itemsChecked:
                 weartext, price_float = getSkinTags(driver, divTitle, i)
