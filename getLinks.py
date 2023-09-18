@@ -22,7 +22,7 @@ output = {}
 # Iterate through the data and format it
 
 scraper_number = 1
-scraper_size = 6
+scraper_size = 3
 
 for row in data:
     scraper_name, link, float_value, price = row[1], row[2], row[3].replace(',', '.'), row[4].replace(',', '.')

@@ -42,6 +42,7 @@ item_found_event = threading.Event()
 total_page_counter = 0
 missed_page_counter = 0
 found_page_counter = 0
+missed_tag_counter = 0
 start_time = None
 end_time = None
 
@@ -58,14 +59,15 @@ def check_stop_condition():
     # You can define your own condition to stop the code here
     # For example, you can check for a specific key press, or a signal from an external source
     # For now, let's assume you want to stop after a specific number of pages checked
-    global total_page_counter, missed_page_counter, found_page_counter, start_time, end_time
-    max_pages_to_check = 2000  # Change this to your desired maximum
+    global total_page_counter, missed_page_counter, found_page_counter, start_time, end_time, missed_tag_counter
+    max_pages_to_check = 500  # Change this to your desired maximum
     # print(f"Total Pages Checked: {total_page_counter}")
     if total_page_counter >= max_pages_to_check:
         print(f"Reached maximum pages to check ({max_pages_to_check}). Stopping...")
         end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"Total Pages Checked: {total_page_counter}")
         print(f"Missed Pages: {missed_page_counter}")
+        print(f"Missed Tags: {missed_tag_counter}")
         print(f"Found Pages: {found_page_counter}")
         print(f"Start Time: {start_time}")
         print(f"End Time: {end_time}")
@@ -120,11 +122,13 @@ def getSkinTitle(driver):
         return divLocated
     
 def getSkinTags(driver, divLocated, i):
+    global missed_tag_counter
     try:
+        price = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[5]/div[1]/strong'.format(divLocated, i+2))
         wear = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[3]/div/div[1]/div[1]'.format(divLocated, i+2))
-        price = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[{}]/td[5]/div[1]/strong'.format(divLocated, i+2)) #consistent html behavior across different item links for CS:GO
     except NoSuchElementException:
-        print("Skin Tags Not Found")
+        missed_tag_counter += 1
+        print("Tags Not Found for Listing {}".format(i))
         return False, False
     weartext = float(''.join(c for c in wear.text if c.isdigit() or c=='.'))
     price_text = price.text
@@ -139,10 +143,14 @@ def getSkinTags(driver, divLocated, i):
     return weartext, price_float
 
 def checkItems(driver, divLocated):
+    global missed_tag_counter
     try:
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[3]/td[5]/div[1]/strong'.format(divLocated))))
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[6]/td[3]/div/div[1]/div[1]'.format(divLocated))))
+        element = driver.find_element(By.XPATH, '/html/body/div[{}]/div/div[7]/table/tbody/tr[2]/td[3]/div/div[1]/div[1]'.format(divLocated))
+        driver.execute_script("arguments[0].scrollIntoView(true);", element)
     except TimeoutException:
         print("Items of Skin Not Found")
+        missed_tag_counter += 1
         return False
     return True
 
@@ -216,7 +224,7 @@ class ScrapeThread(threading.Thread):
         options.add_argument("--enable-javascript")
         options.add_argument("--allow-running-insecure-content")
         options.add_argument("--disable-web-security")
-        options.add_argument("--incognito")
+        # options.add_argument("--incognito")
         options.add_argument("--disable-cache")
 
         # # Disable images
@@ -237,11 +245,24 @@ class ScrapeThread(threading.Thread):
             options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/93.0.961.44 Safari/537.36 ")
 
         driver = webdriver.Chrome(options=options)
-        driver.delete_all_cookies()
         
+        driver.get('https://buff.163.com/goods/857578')
+        
+        driver.delete_all_cookies()
+        driver.execute_script('window.localStorage.clear();')
+        
+        randomCookie = random.randint(1, 22)
+        cookie_file_path = "./fake_Cookies/{}.pkl".format(randomCookie)
+        cookies = pickle.load(open(cookie_file_path, "rb")) 
+        
+        for cookie in cookies:
+            driver.add_cookie(cookie)
+            
+        driver.refresh()
+        time.sleep(1)
         
         for url in links:
-            randomNumber = random.uniform(1, 5)
+            randomNumber = random.uniform(1, 10)
             time.sleep(randomNumber)
             driver.execute_script("window.open('{}', '_blank');".format(url))
 
@@ -268,28 +289,13 @@ class ScrapeThread(threading.Thread):
             for i, handle in enumerate(tab_order):
                 # print("Scrape {} Refreshing".format(i))
                 driver.switch_to.window(handle)
-                # driver.delete_all_cookies()
-
-                try: 
-                    driver.execute_script('window.localStorage.clear();')
-                    randomCookie = random.randint(1, 22)
-                    cookie_file_path = "./fake_Cookies/{}.pkl".format(randomCookie)
-                    cookies = pickle.load(open(cookie_file_path, "rb")) # enable cookies
-                    for cookie in cookies:
-                        driver.add_cookie(cookie)
-                    device_id = str(uuid.uuid4())
-                    client_id = str(uuid.uuid4())
-                    driver.add_cookie({'name': 'deviceId', 'value': device_id})
-                    driver.add_cookie({'name': 'client_id', 'value': client_id})
-                except Exception as e:
-                    print('Could not add cookies')
 
                 if item_found_event.is_set():
                     time.sleep(5)
                     print('Waited for 5 seconds')
 
                 driver.refresh()
-                randomNumber2 = random.uniform(1.5, 2.6)
+                randomNumber2 = random.uniform(3.5, 7.5)
                 time.sleep(randomNumber2)
                 current_url = driver.current_url
                 position = None
