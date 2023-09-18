@@ -60,7 +60,7 @@ def check_stop_condition():
     # For example, you can check for a specific key press, or a signal from an external source
     # For now, let's assume you want to stop after a specific number of pages checked
     global total_page_counter, missed_page_counter, found_page_counter, start_time, end_time, missed_tag_counter
-    max_pages_to_check = 500  # Change this to your desired maximum
+    max_pages_to_check = 2000  # Change this to your desired maximum
     # print(f"Total Pages Checked: {total_page_counter}")
     if total_page_counter >= max_pages_to_check:
         print(f"Reached maximum pages to check ({max_pages_to_check}). Stopping...")
