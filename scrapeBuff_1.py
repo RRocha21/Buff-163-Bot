@@ -312,8 +312,11 @@ class ScrapeThread(threading.Thread):
                 if item_found_event.is_set():
                     time.sleep(5)
                     print('Waited for 5 seconds')
-
-                driver.refresh()
+                try: 
+                    driver.refresh()
+                except Exception as e:
+                    print('Could not refresh page')
+                    
                 randomNumber2 = random.randint(4, 9)
                 # print("Scraper {} Waiting for {} seconds".format(self.scrapernumber, randomNumber2))
                 time.sleep(randomNumber2)
