@@ -23,6 +23,7 @@ output = {}
 
 scraper_number = 1
 scraper_size = 3
+max_link_money = 11.0
 
 for row in data:
     scraper_name, link, float_value, price = row[1], row[2], row[3].replace(',', '.'), row[4].replace(',', '.')
@@ -33,15 +34,15 @@ for row in data:
         
     float_value = float(row[2].replace(',', '.'))  # Remove the comma from the float value
     price = float(row[3].replace(',', '.'))  # Remove the comma from the price
-    
-    if 'scraper{}'.format(scraper_number) not in output:
-        output['scraper{}'.format(scraper_number)] = [{'link': link, 'float': float_value, 'price': price}]
-    else:
-        if len(output['scraper{}'.format(scraper_number)]) < scraper_size:
-            output['scraper{}'.format(scraper_number)].append({'link': link, 'float': float_value, 'price': price})
-        else:
-            scraper_number += 1
+    if (price < max_link_money):
+        if 'scraper{}'.format(scraper_number) not in output:
             output['scraper{}'.format(scraper_number)] = [{'link': link, 'float': float_value, 'price': price}]
+        else:
+            if len(output['scraper{}'.format(scraper_number)]) < scraper_size:
+                output['scraper{}'.format(scraper_number)].append({'link': link, 'float': float_value, 'price': price})
+            else:
+                scraper_number += 1
+                output['scraper{}'.format(scraper_number)] = [{'link': link, 'float': float_value, 'price': price}]
 
 # Format the output as specified
 file_path = 'buff.json'

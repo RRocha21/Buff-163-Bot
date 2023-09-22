@@ -1,9 +1,7 @@
-# ignore cookies
-cookies.pkl
-# ignore incomplete files
-gatherItems.py
-geckodriver.log
-# ignore the output of the program
-output.txt
-# ignore the output of the program
 buff.json
+geckodriver.log
+cookies.pkl
+buff.json
+buff.json
+geckodriver.log
+geckodriver.log

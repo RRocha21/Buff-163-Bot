@@ -175,7 +175,7 @@ def clickToSendProposal(driver):
         try:
             element = WebDriverWait(driver, 8).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[{}]/div[2]/div/div[2]/a'.format(divLocated))))
         except TimeoutException:
-            divLocated == 0
+            divLocated = 0
     if divLocated == 0:
         notify("FAILED: BUFF 163 BOT", "Proposal Pop Up Not Found", False)
         return False
