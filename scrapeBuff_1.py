@@ -310,8 +310,8 @@ class ScrapeThread(threading.Thread):
                 driver.switch_to.window(handle)
 
                 if item_found_event.is_set():
-                    time.sleep(5)
-                    print('Waited for 5 seconds')
+                    time.sleep(10)
+                    print('Waited for 10 seconds')
                 try: 
                     driver.refresh()
                 except Exception as e:
