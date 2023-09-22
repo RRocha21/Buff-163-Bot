@@ -3,3 +3,7 @@ cookies.pkl
 # ignore incomplete files
 gatherItems.py
 geckodriver.log
+# ignore the output of the program
+output.txt
+# ignore the output of the program
+buff.json
